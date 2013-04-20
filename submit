@@ -8,33 +8,18 @@ do
 	in
 		p) PROB="${OPTARG}";;
 		f) FILE="${OPTARG}";;
+		t) TEAM="${OPTARG}";;
 	esac
 done
 
 # check for non-empties
-ERR=0
-if [ -z "$PROB" ]
-then
-	ERR=1
-fi
-if [ -z "$FILE" ]
-then
-	ERR=1
-fi
-
 EXT="${FILE##*.}"
-if [ -z "$EXT" ]
+if [ -z "$PROB" -o -z "$TEAM" -o -z "$FILE" -o "$EXT" ]
 then
-	ERR=1
-fi
-
-if [ "$ERR" -eq "1" ]
-then
-	echo "submit -p [PROBLEM_NAME] -f [FILE_TO_SEND]"
+	echo "submit -p [PROBLEM_NAME] -f [FILE_TO_SEND] -t [TEAM_NAME]"
+	echo -e "\tAll fields are required, no spaces in names!"
 	exit
 fi
-
-TEAM=`whoami`
 
 submit_hours=`date +%k`
 submit_minutes=`date +%M`

@@ -3,22 +3,23 @@
 start_time=1110
 submission_file="SUBMISSIONS"
 scoreboard_file="SCOREBOARD"
-teams="bell_ce"
+teams="bell_ce digh_ad"
 probs="cypher statistics cleaning"
 
+rm $scoreboard_file
 for team in $teams
 do
 	total_penalty_points=0
 	total_problems_solved=0
-	echo -n "Team $team : "
+	echo -n "Team $team : " >> $scoreboard_file
 	for prob in $probs
 	do
 		submission_count=$(grep "team $team:prob $prob:" $submission_file | wc -l)
-		is_correct=$(grep "team $team:prob $prob:1" $submission_file | wc -l)
+		is_correct=$(grep "team $team:prob $prob:1" $submission_file | head -n1 | wc -l)
 		wrong_submits=$(expr $submission_count - 1)
 		wrong_submit_penalty=$(expr $wrong_submits \* 20)
 		wrong_submit_penalty=$(expr $wrong_submit_penalty \* $is_correct)
-		submit_minutes=$(grep "team $team : prob $prob : 1" $submission_file | head -n1 | cut -d: -f1)
+		submit_minutes=$(grep "team $team:prob $prob:1" $submission_file | head -n1 | cut -d: -f1)
 		if [ -z "$submit_minutes" ]
 		then
 			submit_minutes=$start_time
@@ -30,11 +31,19 @@ do
 
 		if [ "$is_correct" -eq "0" ]
 		then
-			echo -n "X / $submission_count : "
+			echo -n "X / $submission_count : " >> $scoreboard_file
 		else
-			echo -n "$problem_penalty / $submission_count : "
+			echo -n "$problem_penalty / $submission_count : " >> $scoreboard_file
 		fi
 
 	done
-	echo $total_problems_solved Problems : $total_penalty_points Points
+	echo $total_problems_solved Problems : $total_penalty_points Points >> $scoreboard_file
 done
+
+# now, resort the scoreobard file
+prob_count=$(echo $probs | wc -w)
+solution_count_field=$(expr $prob_count + 2)
+point_count_field=$(expr $solution_count_field + 1)
+sort_params=$(echo "-t: -k$solution_count_field,$solution_count_field"r "-k$point_count_field")
+sort $sort_params $scoreboard_file -o $scoreboard_file 
+cat $scoreboard_file
