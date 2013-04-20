@@ -1,0 +1,31 @@
+#!/bin/bash
+
+#retrieve mail
+echo p | mail > .CURRENT_PROBLEM
+
+SUBJECT_LINE=$(grep "Subject:" .CURRENT_PROBLEM | cut -d: -f3-)
+echo $SUBJECT_LINE
+TEAM=$(echo $SUBJECT_LINE | cut -d: -f1 | tr -d " " | tr '[A-Z]' '[a-z]')
+PROB=$(echo $SUBJECT_LINE | cut -d: -f2 | tr -d " " | tr '[A-Z]' '[a-z]')
+LANG=$(echo $SUBJECT_LINE | cut -d: -f3 | tr -d " " | tr '[A-Z]' '[a-z]')
+TIME=$(echo $SUBJECT_LINE | cut -d: -f4 | tr -d " " | tr '[A-Z]' '[a-z]')
+
+SRC_FILE=submission
+SRC_FILE="$SRC_FILE.$LANG"
+echo $SRC_FILE
+
+tail -n+17 .CURRENT_PROBLEM | head -n+1 > $SRC_FILE
+
+# now judge. TODO Add cutoff for running
+python $SRC_FILE < judge/$PROB.judge.in > submission.out
+JUDGE_RESULTS=$(diff judge/$PROB.judge.out submission.out)
+
+SOLVED=0
+if [ -z "$JUDGE_RESULTS" ]
+then
+	SOLVED=1
+fi
+echo $TIME:team $TEAM:prob $PROB:$SOLVED >> SUBMISSIONS
+
+# clean up
+rm -f submission.out $SRC_FILE .CURRENT_PROBLEM

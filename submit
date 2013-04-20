@@ -1,0 +1,45 @@
+#!/bin/bash
+
+JUDGE=bell_ce
+
+while getopts p:t:f: option
+do
+	case "${option}"
+	in
+		p) PROB="${OPTARG}";;
+		f) FILE="${OPTARG}";;
+	esac
+done
+
+# check for non-empties
+ERR=0
+if [ -z "$PROB" ]
+then
+	ERR=1
+fi
+if [ -z "$FILE" ]
+then
+	ERR=1
+fi
+
+EXT="${FILE##*.}"
+if [ -z "$EXT" ]
+then
+	ERR=1
+fi
+
+if [ "$ERR" -eq "1" ]
+then
+	echo "submit -p [PROBLEM_NAME] -f [FILE_TO_SEND]"
+	exit
+fi
+
+TEAM=`whoami`
+
+submit_hours=`date +%k`
+submit_minutes=`date +%M`
+submit_time=`expr $submit_hours \* 60`
+submit_time=`expr $submit_time + $submit_minutes`
+mail -s "SUBMISSION:$TEAM:$PROB:$EXT:$submit_time" $JUDGE < $FILE
+
+echo "Submission made for team $TEAM on $PROB in $EXT"

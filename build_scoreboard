@@ -1,0 +1,40 @@
+#!/bin/bash
+
+start_time=1110
+submission_file="SUBMISSIONS"
+scoreboard_file="SCOREBOARD"
+teams="bell_ce"
+probs="cypher statistics cleaning"
+
+for team in $teams
+do
+	total_penalty_points=0
+	total_problems_solved=0
+	echo -n "Team $team : "
+	for prob in $probs
+	do
+		submission_count=$(grep "team $team:prob $prob:" $submission_file | wc -l)
+		is_correct=$(grep "team $team:prob $prob:1" $submission_file | wc -l)
+		wrong_submits=$(expr $submission_count - 1)
+		wrong_submit_penalty=$(expr $wrong_submits \* 20)
+		wrong_submit_penalty=$(expr $wrong_submit_penalty \* $is_correct)
+		submit_minutes=$(grep "team $team : prob $prob : 1" $submission_file | head -n1 | cut -d: -f1)
+		if [ -z "$submit_minutes" ]
+		then
+			submit_minutes=$start_time
+		fi
+		time_penalty=$(expr $submit_minutes - $start_time)
+		problem_penalty=$(expr $time_penalty + $wrong_submit_penalty)
+		total_penalty_points=$(expr $total_penalty_points + $problem_penalty)
+		total_problems_solved=$(expr $total_problems_solved + $is_correct)
+
+		if [ "$is_correct" -eq "0" ]
+		then
+			echo -n "X / $submission_count : "
+		else
+			echo -n "$problem_penalty / $submission_count : "
+		fi
+
+	done
+	echo $total_problems_solved Problems : $total_penalty_points Points
+done
