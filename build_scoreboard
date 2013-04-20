@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Times are measured in minutes since midnight,
+# so 1110 is 6:30 PM
 start_time=1110
 submission_file="SUBMISSIONS"
 scoreboard_file="SCOREBOARD"
@@ -14,6 +16,7 @@ do
 	echo -n "Team $team : " >> $scoreboard_file
 	for prob in $probs
 	do
+		# calculate penalty points for this problem
 		submission_count=$(grep "team $team:prob $prob:" $submission_file | wc -l)
 		is_correct=$(grep "team $team:prob $prob:1" $submission_file | head -n1 | wc -l)
 		wrong_submits=$(expr $submission_count - 1)
@@ -26,9 +29,12 @@ do
 		fi
 		time_penalty=$(expr $submit_minutes - $start_time)
 		problem_penalty=$(expr $time_penalty + $wrong_submit_penalty)
+
+		# update running totals
 		total_penalty_points=$(expr $total_penalty_points + $problem_penalty)
 		total_problems_solved=$(expr $total_problems_solved + $is_correct)
 
+		# update scoreboard
 		if [ "$is_correct" -eq "0" ]
 		then
 			echo -n "X / $submission_count : " >> $scoreboard_file
@@ -40,7 +46,7 @@ do
 	echo $total_problems_solved Problems : $total_penalty_points Points >> $scoreboard_file
 done
 
-# now, resort the scoreobard file
+# now, resort the scoreobard file by problems solved and then penalty points
 prob_count=$(echo $probs | wc -w)
 solution_count_field=$(expr $prob_count + 2)
 point_count_field=$(expr $solution_count_field + 1)

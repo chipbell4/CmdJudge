@@ -1,7 +1,9 @@
 #!/bin/bash
 
+# the judge for the contest (essentially the email for the judge)
 JUDGE=bell_ce
 
+# loop, getting each of the three required options
 while getopts p:t:f: option
 do
 	case "${option}"
@@ -12,15 +14,19 @@ do
 	esac
 done
 
-# check for non-empties
+# if any of the options were empty, or the file didn't have an extension
+# print out the 'help' screen
 EXT="${FILE##*.}"
-if [ -z "$PROB" -o -z "$TEAM" -o -z "$FILE" -o "$EXT" ]
+if [ -z "$PROB" -o -z "$TEAM" -o -z "$FILE" -o -z "$EXT" ]
 then
 	echo "submit -p [PROBLEM_NAME] -f [FILE_TO_SEND] -t [TEAM_NAME]"
 	echo -e "\tAll fields are required, no spaces in names!"
 	exit
 fi
 
+
+# Times are measured in minutes since midnight,
+# so 1110 is 6:30 PM
 submit_hours=`date +%k`
 submit_minutes=`date +%M`
 submit_time=`expr $submit_hours \* 60`

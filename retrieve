@@ -3,11 +3,15 @@
 mail_file="CURRENT_PROBLEM"
 submission_output="submission.out"
 
-#retrieve all submission from mail
+#retrieve all submissions from mail
 for k in `echo -n | mail | grep SUBMISSION | cut -c5-6 | sort -r`
 do
 	echo $k | mail > $mail_file
+	
+	# parse email, getting return address for problem receipt
+	SUBMITTER=$(grep "From " $mail_file | cut -d' ' -f2 | tr -d ' ')
 
+	# parse subject, and get relavant information
 	SUBJECT_LINE=$(grep "Subject:" $mail_file | cut -d: -f3-)
 	TEAM=$(echo $SUBJECT_LINE | cut -d: -f1 | tr -d " " | tr '[A-Z]' '[a-z]')
 	PROB=$(echo $SUBJECT_LINE | cut -d: -f2 | tr -d " " | tr '[A-Z]' '[a-z]')
@@ -28,14 +32,17 @@ do
 	JUDGE_RESULTS=$(diff judge/$PROB.judge.out $submission_output)
 
 	SOLVED=0
+	RETURN_MSG="Wrong output"
 	if [ -z "$JUDGE_RESULTS" ]
 	then
 		SOLVED=1
+		RETURN_MSG="Correct!"
 	fi
 	echo $TIME:team $TEAM:prob $PROB:$SOLVED >> SUBMISSIONS
 
-	# report to user
-	echo -n "\tSolution was correct?: $SOLVED"
+	# report to users
+	echo -e "\tSolution was correct?: $SOLVED"
+	echo $RETURN_MSG | mail -s "$TEAM:$PROB:$LANG:$TIME" $SUBMITTER
 
 	# clean up
 	rm -f $submission_output $SRC_FILE $mail_file
@@ -45,4 +52,3 @@ do
 done
 
 echo "Judging finished"
-
