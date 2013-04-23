@@ -8,4 +8,10 @@ This is a set of scripts to help judge SMALL programming contests completely on 
 
 Todo
 ----
+* Compiled language support
+    * C/C++
+    * Java
+* Other output types
+    * Compile Error
+    * Runtime Error
 * Build Test Set
