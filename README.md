@@ -8,6 +8,8 @@ This is a set of scripts to help judge SMALL programming contests completely on 
 
 Todo
 ----
+* Formatted Output
+* Better Configuration
 * Compiled language support
     * C/C++
     * Java
